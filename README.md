@@ -1,2 +1,2 @@
-# HUGProtection
-Honestly Unknown amount of Goodness Protection
+# Honestly Unknown amount of Goodness Protection
+
