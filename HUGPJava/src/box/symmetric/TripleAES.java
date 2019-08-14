@@ -1,5 +1,7 @@
 package box.symmetric;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,8 +31,14 @@ public class TripleAES {
 		byte[] iv = new byte[16];
 		SRng.srng.nextBytes(iv);
 		
-		encryptFile(new FileInputStream(new File("plain.txt")), bk1, bk2, bk3, iv);
-		decryptFile(new FileInputStream(new File("enced")), bk1, bk2, bk3, iv);
+		byte[] enced = encryptFile(new FileInputStream(new File("plain.txt")), bk1, bk2, bk3, iv);
+		
+		new FileOutputStream(new File("enced")).write(enced);
+		
+		byte[] deced = decryptFile(new ByteArrayInputStream(enced), bk1, bk2, bk3, iv);
+		
+		new FileOutputStream(new File("deced")).write(deced);
+		
 		
 		System.out.println("doneit");
 		
@@ -60,7 +68,7 @@ public class TripleAES {
 		Cipher cipher3 = Cipher.getInstance("AES/ECB/NoPadding");
 		cipher3.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(kb3, "AES"));
 		
-		FileOutputStream outstream = new FileOutputStream(new File("enced"));
+		ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 		
 		byte[] inbuf = new byte[16];
 		byte[] prevblock = iv;
@@ -86,7 +94,7 @@ public class TripleAES {
 			out = cipher2.update(out, 0, 16);
 			out = cipher3.update(out, 0, 16);
 			outstream.write(out);
-			prevblock = Arrays.copyOf(out, 16);
+			prevblock = out;
 		}
 		
 		if (!padded) {
@@ -100,9 +108,7 @@ public class TripleAES {
 			
 		}
 		
-		outstream.close();
-		
-		return null;
+		return outstream.toByteArray();
 		
 	}
 	
@@ -137,7 +143,7 @@ public class TripleAES {
 		Cipher cipher3 = Cipher.getInstance("AES/ECB/NoPadding");
 		cipher3.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kb3, "AES"));
 		
-		FileOutputStream outstream = new FileOutputStream(new File("mydeced"));
+		ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 		
 		byte[] inbuf = new byte[16];
 		byte[] prevblock = iv;
@@ -147,7 +153,7 @@ public class TripleAES {
 		int len;
 		while ((len = input.read(inbuf)) != -1) {
 			
-			tmp = Arrays.copyOf(inbuf, 16);
+			tmp = inbuf;
 			
 			byte[] out = cipher3.update(inbuf, 0, 16);
 			out = cipher2.update(out, 0, 16);
@@ -156,16 +162,16 @@ public class TripleAES {
 			for (int i = 0; i < 16; i++) {
 				out[i] ^= prevblock[i];
 			}
-			prevblock = Arrays.copyOf(tmp, 16);
+			prevblock = tmp;
 			
 			outstream.write(out);
 			
 		}
 		
+		byte[] result = outstream.toByteArray();
 		
-		outstream.close();
-		
-		return null;
+		// unpad PKCS7
+		return Arrays.copyOf(result, result.length - result[result.length - 1]);
 		
 	}
 
