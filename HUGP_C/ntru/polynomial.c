@@ -202,7 +202,7 @@ Polynomial *Poly_inverseMod2(Polynomial *this) {
 				f->coef[i - 1] = f->coef[i];
 				// mul c(X) by X
 				// shift to right
-				c->coef[N - i + 1] = c->coef[N - 1];
+				c->coef[N - i + 1] = c->coef[N - i];
 			}
 			// finalize
 			f->coef[N] = 0;
@@ -264,7 +264,7 @@ Polynomial *Poly_inverseMod2(Polynomial *this) {
 
 Polynomial *Poly_mod2TomodQ(Polynomial *this, Polynomial *f2, int q) {
 	int v = 2;
-	Polynomial *temp = Poly_withcoeflen(f2->coeflen);
+	Polynomial *temp;
 	while (v < q) {
 		v *= 2;
 
@@ -278,14 +278,15 @@ Polynomial *Poly_mod2TomodQ(Polynomial *this, Polynomial *f2, int q) {
 		Polynomial *step2 = Poly_times(step1, f2);
 		Poly_modby(step2, v);
 
-		Poly_delete(step1);
-		Poly_delete(f2);
 		f2 = step2;
+
+		/*Poly_delete(step1);
+		Poly_delete(f2);*/
 
 		Poly_minus_inplace(temp, f2);
 		Poly_modby(temp, v);
 
-		Poly_delete(f2);
+		//Poly_delete(step2);
 		f2 = temp;
 	}
 	return f2;
@@ -295,9 +296,11 @@ Polynomial *Poly_mod2TomodQ(Polynomial *this, Polynomial *f2, int q) {
 
 Polynomial *Poly_inverseModQ(Polynomial *this, int q) {
 	Polynomial *fq = Poly_inverseMod2(this);
+
 	if (fq == NULL)
 		return NULL;
 	Polynomial *retval = Poly_mod2TomodQ(this, fq, q);
+
 	Poly_delete(fq);
 	return retval;
 }
@@ -307,16 +310,16 @@ Polynomial *Poly_inverseModQ(Polynomial *this, int q) {
 void Poly_ensurePositive(Polynomial *this, int modulus) {
 	for (int i = 0; i < this->coeflen; i++) {
 		while (this->coef[i] < 0) {
-			this->coef += modulus;
+			this->coef[i] += modulus;
 		}
 	}
 }
 
 void Poly_center(Polynomial *this, int q) {
 	for (int i = 0; i < this->coeflen; i++) {
-        while (this->coef[i] < -q / 2)
+        while (this->coef[i] < (-q / 2))
         	this->coef[i] += q;
-        while (this->coef[i] > q / 2)
+        while (this->coef[i] > (q / 2))
         	this->coef[i] -= q;
     }
 }
@@ -324,7 +327,7 @@ void Poly_center(Polynomial *this, int q) {
 
 
 
-Polynomial *Poly_random(int N, int numOnes, int numNegOnes) {
+Polynomial *Poly_makeRandom(int N, int numOnes, int numNegOnes) {
 
 	if (numOnes + numNegOnes > N) {
 		fprintf(stderr, "error in Poly_random(), 1s + -1s > N\n");
@@ -349,6 +352,19 @@ Polynomial *Poly_random(int N, int numOnes, int numNegOnes) {
 	}
 
 	return poly;
+}
+
+
+void Poly_scramble(Polynomial *this) {
+
+	for (int i = this->coeflen - 1; i > 0; i--) {
+		int j = CSPRNGrandUInt() % (i + 1);
+
+		int tmp = this->coef[i];
+		this->coef[i] = this->coef[j];
+		this->coef[j] = tmp;
+	}
+
 }
 
 

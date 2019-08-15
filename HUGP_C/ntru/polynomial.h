@@ -46,7 +46,8 @@ Polynomial *Poly_inverseModQ(Polynomial *this, int q);
 void Poly_ensurePositive(Polynomial *this, int modulus);
 void Poly_center(Polynomial *this, int q);
 
-Polynomial *Poly_random(int N, int numOnes, int numNegOnes);
+Polynomial *Poly_makeRandom(int N, int numOnes, int numNegOnes);
+void Poly_scramble(Polynomial *this);
 void Poly_print(Polynomial *this);
 
 

@@ -7,32 +7,27 @@
 
 #include "ntru/polynomial.h"
 #include "util/csprng.h"
+#include "ntru/ntruengine.h"
 
 int main(void) {
 
-	Polynomial *poly = Poly_new(420, 69);
-
-	Poly_print(poly);
-
-	Polynomial *second = Poly_new(20, 69);
-
-	Poly_timesScalar(second, 3);
-
-	Poly_print(second);
-
 	CSPRNGinit();
 
-	unsigned int result = CSPRNGrandUInt();
-
-	printf("%d\n", result);
 
 
-	Poly_print(Poly_random(10, 3, 7));
+	NTRUKeyPair pair = NTRUEngine_generateKeyPair();
+
+	Polynomial *msg = Poly_makeRandom(743, 16, 0);
+	Poly_print(msg);
+
+	Polynomial *e = NTRUEngine_encrypt(msg, pair.pub);
+	Poly_print(e);
+
+	Polynomial *d = NTRUEngine_decrypt(e, pair.priv);
+	Poly_print(d);
+
 
 	CSPRNGdestroy();
-
-
-	Poly_delete(poly);
 
 	return 0;
 }
