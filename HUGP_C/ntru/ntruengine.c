@@ -85,7 +85,7 @@ Polynomial *NTRUEngine_encrypt(Polynomial *msg, PubKey pub) {
 
 	Polynomial *e = Poly_times(r, pub.h);
 	Poly_modby(e, Q);
-	e = Poly_plus(e, msg);
+	Poly_add_inplace(e, msg);
 	Poly_modby(e, Q);
 	Poly_ensurePositive(e, Q);
 

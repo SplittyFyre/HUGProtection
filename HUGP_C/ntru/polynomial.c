@@ -12,6 +12,7 @@
 #include "polynomial.h"
 #include "../util/csprng.h"
 
+
 #define MAX(a, b) ( ( (a) > (b) ) ? (a) : (b) )
 
 
