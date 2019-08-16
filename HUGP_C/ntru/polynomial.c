@@ -25,7 +25,7 @@ bool Poly_equalsZero(Polynomial *this) {
 	return true;
 }
 
-bool Poly_equalsScalar(Polynomial *this, int scalar) {
+bool Poly_equalsScalar(Polynomial *this, pci_t scalar) {
 	if (this->coef[0] != scalar)
 		false;
 	for (int i = 1; i < this->coeflen; i++)
@@ -37,9 +37,9 @@ bool Poly_equalsScalar(Polynomial *this, int scalar) {
 // private
 
 
-Polynomial *Poly_new(int coefficient, int exponent) {
+Polynomial *Poly_new(pci_t coefficient, int exponent) {
 	Polynomial *poly = malloc(sizeof(Polynomial));
-	poly->coef = calloc(exponent + 1, sizeof(int));
+	poly->coef = calloc(exponent + 1, sizeof(pci_t));
 	poly->coeflen = (exponent + 1);
 	poly->coef[exponent] = coefficient;
 	return poly;
@@ -47,19 +47,19 @@ Polynomial *Poly_new(int coefficient, int exponent) {
 
 Polynomial *Poly_withcoeflen(int coeflen) {
 	Polynomial *poly = malloc(sizeof(Polynomial));
-	poly->coef = calloc(coeflen, sizeof(int));
+	poly->coef = calloc(coeflen, sizeof(pci_t));
 	poly->coeflen = coeflen;
 	return poly;
 }
 
-Polynomial *Poly_from_other(int *coefficients, int tocopy, int coeflen) {
+Polynomial *Poly_from_other(pci_t *coefficients, int tocopy, int coeflen) {
 	Polynomial *poly = Poly_withcoeflen(coeflen);
-	memcpy(poly->coef, coefficients, tocopy * sizeof(int));
+	memcpy(poly->coef, coefficients, tocopy * sizeof(pci_t));
 	poly->coeflen = coeflen;
 	return poly;
 }
 
-Polynomial *Poly_scalarAs(int scalar, int coeflen) {
+Polynomial *Poly_scalarAs(pci_t scalar, int coeflen) {
 	Polynomial *poly = Poly_withcoeflen(coeflen);
 	poly->coef[0] = scalar;
 	return poly;
@@ -106,7 +106,7 @@ void Poly_add_inplace(Polynomial *dest, Polynomial *src) {
 		dest->coef[i] += src->coef[i];
 	}
 }
-void Poly_addScalar(Polynomial *this, int scalar) {
+void Poly_addScalar(Polynomial *this, pci_t scalar) {
 	this->coef[0] += scalar;
 }
 void Poly_minus_inplace(Polynomial *dest, Polynomial *src) {
@@ -129,7 +129,7 @@ Polynomial *Poly_times(Polynomial *this, Polynomial *that) {
 	if (poly->coeflen > this->coeflen) {
 		for (int k = this->coeflen; k < poly->coeflen; k++)
 			poly->coef[k - this->coeflen] += poly->coef[k];
-		poly->coef = realloc(poly->coef, this->coeflen * sizeof(int));
+		poly->coef = realloc(poly->coef, this->coeflen * sizeof(pci_t));
 		poly->coeflen = this->coeflen;
 	}
 	return poly;
@@ -153,13 +153,13 @@ void Poly_times_to_dest(Polynomial *this, Polynomial *that, Polynomial *dest) {
 	if (dest->coeflen > this->coeflen) {
 		for (int k = this->coeflen; k < dest->coeflen; k++)
 			dest->coef[k - this->coeflen] += dest->coef[k];
-		dest->coef = realloc(dest->coef, this->coeflen * sizeof(int));
+		dest->coef = realloc(dest->coef, this->coeflen * sizeof(pci_t));
 		dest->coeflen = this->coeflen;
 	}
 }
 
 
-void Poly_timesScalar(Polynomial *this, int scalar) {
+void Poly_timesScalar(Polynomial *this, pci_t scalar) {
 	for (int i = 0; i < this->coeflen; i++) {
 		this->coef[i] *= scalar;
 	}
@@ -406,3 +406,5 @@ void Poly_print(Polynomial *this) {
 	// new line
 	puts("");
 }
+
+

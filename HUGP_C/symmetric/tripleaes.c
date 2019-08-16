@@ -6,10 +6,11 @@
  */
 
 
-#include "tripleaes.h"
-
 #include <stdbool.h>
 #include <memory.h>
+#include <stdlib.h>
+
+#include "tripleaes.h"
 
 #include "raw/aes.h"
 
@@ -31,21 +32,19 @@ size_t tripleAESEncrypt(uint8_t *data, size_t datalen,
 
 	// pad
 	int padsneeded = newsize - datalen;
-	//printf("padsneeded: %d\n", padsneeded);
 	for (int i = datalen; i < newsize; i++) {
 		data[i] = (uint8_t) padsneeded;
 	}
-	printf("datalen: %d\npadsneeded: %d\nnewlen: %d\n", datalen, padsneeded, newsize);
+	//printf("datalen: %d\npadsneeded: %d\nnewlen: %d\n", datalen, padsneeded, newsize);
 
 	struct AES_ctx ctx1, ctx2, ctx3;
 	AES_init_ctx(&ctx1, kb1);
 	AES_init_ctx(&ctx2, kb2);
 	AES_init_ctx(&ctx3, kb3);
 
-	uint8_t *prevblock = malloc(16);
-	memcpy(prevblock, iv, 16);
+	uint8_t *prevblock = iv;
 
-	for (unsigned int i = 0; i < newsize; i += 16) {
+	for (size_t i = 0; i < newsize; i += 16) {
 
 		uint8_t *bufferpos = (data + i);
 
@@ -83,7 +82,7 @@ size_t tripleAESDecrypt(uint8_t *data, size_t datalen,
 	uint8_t *tmp = malloc(16);
 
 
-	for (unsigned int i = 0; i < datalen; i += 16) {
+	for (size_t i = 0; i < datalen; i += 16) {
 
 		uint8_t *bufferpos = (data + i);
 
@@ -100,8 +99,11 @@ size_t tripleAESDecrypt(uint8_t *data, size_t datalen,
 		memcpy(prevblock, tmp, 16);
 	}
 
+	free(prevblock);
+	free(tmp);
 
-	return 0;
+	// return size of buffer excluding padding
+	return datalen - data[datalen - 1];
 }
 
 

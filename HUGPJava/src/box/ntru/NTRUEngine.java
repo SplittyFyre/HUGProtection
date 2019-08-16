@@ -98,6 +98,7 @@ public class NTRUEngine {
 		System.out.println(e);
 		System.out.println(d);
 		System.out.println(msg.equals(d));
+		System.out.println(keys.pub.h);
 		//}
 	}
 

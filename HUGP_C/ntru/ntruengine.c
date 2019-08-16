@@ -7,8 +7,12 @@
 
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <memory.h>
 #include "ntruengine.h"
+#include "../util/base64.h"
+#include "../util/hugdataio.h"
 
 
 #define Q 2048
@@ -38,7 +42,7 @@ NTRUKeyPair NTRUEngine_generateKeyPair() {
 	while (1) {
 		Poly_scramble(t);
 		// copy contents of t into f
-		memcpy(f->coef, t->coef, N * sizeof(int));
+		memcpy(f->coef, t->coef, N * sizeof(pci_t));
 		Poly_timesScalar(f, 3);
 		Poly_addScalar(f, 1);
 
@@ -107,6 +111,43 @@ Polynomial *NTRUEngine_decrypt(Polynomial *cip, PrivKey priv) {
 
 	return a;
 }
+
+
+
+
+
+
+
+
+const char * const BEGIN_PUB = "-----BEGIN HUG PUBLIC KEY-----\n";
+const char * const END_PUB = "-----BEGIN HUG PUBLIC KEY-----\n";
+
+
+void NTRUEngine_exportPublicKey(FILE *fout, PubKey *pub) {
+
+	uint8_t *data = (uint8_t*) pub->h->coef;
+	size_t datalen = pub->h->coeflen * sizeof(pci_t);
+
+	hugdataio_writedata(fout, BEGIN_PUB, END_PUB, data, datalen);
+
+}
+
+
+void NTRUEngine_importPublicKey(FILE *fin, PubKey *puboutp) {
+
+	size_t datalen;
+	uint8_t *decoded = hugdataio_extractdata(fin, BEGIN_PUB, END_PUB, &datalen);
+
+	Polynomial *poly = malloc(sizeof(Polynomial));
+	poly->coeflen = datalen / sizeof(pci_t);
+	poly->coef = (pci_t*) decoded;
+
+	puboutp->h = poly;
+
+}
+
+
+
 
 
 

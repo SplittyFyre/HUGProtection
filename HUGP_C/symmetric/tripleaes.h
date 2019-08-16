@@ -9,7 +9,6 @@
 #define TRIPLEAES_H_
 
 
-#include <stdlib.h>
 #include <stdint.h>
 
 

@@ -8,6 +8,7 @@
 #ifndef NTRUENGINE_H_
 #define NTRUENGINE_H_
 
+#include <stdio.h>
 #include "polynomial.h"
 
 typedef struct {
@@ -29,6 +30,10 @@ NTRUKeyPair NTRUEngine_generateKeyPair();
 Polynomial *NTRUEngine_encrypt(Polynomial *msg, PubKey pub);
 Polynomial *NTRUEngine_decrypt(Polynomial *cip, PrivKey priv);
 
+
+
+void NTRUEngine_exportPublicKey(FILE *fout, PubKey *pub);
+void NTRUEngine_importPublicKey(FILE *fin, PubKey *puboutp);
 
 
 #endif /* NTRUENGINE_H_ */
