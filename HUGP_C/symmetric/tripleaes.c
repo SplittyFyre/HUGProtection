@@ -30,7 +30,7 @@ size_t tripleAESEncrypt(uint8_t *data, size_t datalen,
 
 	data = realloc(data, newsize);
 
-	// pad
+	// pad using pkcs#7
 	int padsneeded = newsize - datalen;
 	for (int i = datalen; i < newsize; i++) {
 		data[i] = (uint8_t) padsneeded;
@@ -102,7 +102,7 @@ size_t tripleAESDecrypt(uint8_t *data, size_t datalen,
 	free(prevblock);
 	free(tmp);
 
-	// return size of buffer excluding padding
+	// return size of buffer excluding pkcs#7 padding
 	return datalen - data[datalen - 1];
 }
 

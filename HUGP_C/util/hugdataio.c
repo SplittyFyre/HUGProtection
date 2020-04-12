@@ -12,6 +12,7 @@
 #include "hugdataio.h"
 #include "base64.h"
 
+#define BASE64_LINE_LEN 64
 
 void hugdataio_writedata(FILE *fout, const char * const start, const char * const end, uint8_t *data, size_t datalen) {
 	fputs(start, fout);
@@ -20,7 +21,7 @@ void hugdataio_writedata(FILE *fout, const char * const start, const char * cons
 	int len = strlen(b64str);
 	for (int i = 0, c = -1; i < len; i++) {
 		c++;
-		if (c == 50) {
+		if (c == BASE64_LINE_LEN) {
 			fputc('\n', fout);
 			c = 0;
 		}
@@ -41,16 +42,16 @@ void hugdataio_writedata(FILE *fout, const char * const start, const char * cons
 
 uint8_t *hugdataio_extractdata(FILE *fin, const char * const start, const char * const end, size_t *datalenp) {
 
-	char buf[64];
+	char buf[128];
 
-	unsigned int b64buf_size = 512;
+	size_t b64buf_size = 256;
 	char *b64str = malloc(b64buf_size);
 	b64str[0] = '\0';
-	unsigned int numacc = 0;
+	size_t numacc = 0;
 
 	bool begun = false;
 
-	while (fgets(buf, 64, fin) != NULL) {
+	while (fgets(buf, 128, fin) != NULL) {
 		if (begun) {
 
 			if (strcmp(buf, end) == 0) {
